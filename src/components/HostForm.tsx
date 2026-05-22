@@ -210,7 +210,6 @@ function AddressAutocomplete({
       style={{
         border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
         borderRadius: 999,
-        overflow: "hidden",
       }}
     />
   );

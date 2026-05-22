@@ -45,7 +45,9 @@ body {
 }
 
 .address-autocomplete-wrapper gmp-place-autocomplete {
-  --gmpac-font-family: var(--font-display, system-ui);
+  --gmpac-font-family: var(--font-sans, system-ui);
+  display: block;
+  width: 100%;
 }
 
 .address-autocomplete-wrapper input {
@@ -57,4 +59,5 @@ body {
   color: var(--ink);
   border: none;
   outline: none;
+  border-radius: 999px;
 }
