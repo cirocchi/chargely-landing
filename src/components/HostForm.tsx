@@ -149,7 +149,6 @@ function AddressAutocomplete({
     const { PlaceAutocompleteElement } = await google.maps.importLibrary("places") as any;
 
     const el = new PlaceAutocompleteElement({
-      includedPrimaryTypes: ["address"],
       includedRegionCodes: ["it"],
       locationBias: { lat: 41.9028, lng: 12.4964, radius: 50000 },
     });
