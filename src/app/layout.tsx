@@ -30,9 +30,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
   return (
     <html lang="it" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        {googleMapsKey && (
+          <script
+            src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&libraries=places&language=it`}
+            async
+            defer
+          />
+        )}
+      </body>
     </html>
   );
 }

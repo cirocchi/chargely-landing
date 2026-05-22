@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, forwardRef, type ChangeEvent } from "react";
+import { useState, useRef, useEffect, useCallback, forwardRef, type ChangeEvent } from "react";
 import { supabase } from "@/lib/supabase";
 
 const SOCKET_TYPES = [
@@ -42,6 +42,9 @@ interface FormData {
   email: string;
   phone: string;
   address: string;
+  latitude: number | null;
+  longitude: number | null;
+  postalCode: string;
   socketType: string;
   socketLocation: string;
   socketLocationOther: string;
@@ -100,6 +103,124 @@ function TextInput({
   return (
     <input
       type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className="w-full bg-paper rounded-full px-[22px] py-4 font-sans text-base text-ink outline-none transition-shadow focus:ring-4"
+      style={{
+        border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
+        ...(invalid
+          ? { "--tw-ring-color": "rgba(184,92,60,0.18)" } as React.CSSProperties
+          : { "--tw-ring-color": "rgba(22,51,31,0.15)" } as React.CSSProperties),
+      }}
+    />
+  );
+}
+
+declare global {
+  interface Window {
+    google?: {
+      maps: {
+        places: {
+          Autocomplete: new (
+            input: HTMLInputElement,
+            opts?: Record<string, unknown>
+          ) => GoogleAutocomplete;
+        };
+      };
+    };
+  }
+}
+
+interface GoogleAutocomplete {
+  addListener: (event: string, handler: () => void) => void;
+  getPlace: () => {
+    formatted_address?: string;
+    address_components?: {
+      long_name: string;
+      short_name: string;
+      types: string[];
+    }[];
+    geometry?: {
+      location?: { lat: () => number; lng: () => number };
+    };
+  };
+}
+
+function AddressAutocomplete({
+  value,
+  onChange,
+  onPlaceSelect,
+  placeholder,
+  invalid,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onPlaceSelect: (place: {
+    address: string;
+    lat: number | null;
+    lng: number | null;
+    postalCode: string;
+  }) => void;
+  placeholder: string;
+  invalid?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const autocompleteRef = useRef<GoogleAutocomplete | null>(null);
+
+  const initAutocomplete = useCallback(() => {
+    if (!inputRef.current || !window.google?.maps?.places || autocompleteRef.current) return;
+
+    const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
+      types: ["address"],
+      componentRestrictions: { country: "it" },
+      fields: ["formatted_address", "geometry", "address_components"],
+    });
+
+    ac.addListener("place_changed", () => {
+      const place = ac.getPlace();
+      if (!place.geometry?.location) return;
+
+      const lat = place.geometry.location.lat();
+      const lng = place.geometry.location.lng();
+      const address = place.formatted_address || "";
+      let postalCode = "";
+
+      if (place.address_components) {
+        for (const comp of place.address_components) {
+          if (comp.types.includes("postal_code")) {
+            postalCode = comp.long_name;
+            break;
+          }
+        }
+      }
+
+      onPlaceSelect({ address, lat, lng, postalCode });
+    });
+
+    autocompleteRef.current = ac;
+  }, [onPlaceSelect]);
+
+  useEffect(() => {
+    if (window.google?.maps?.places) {
+      initAutocomplete();
+      return;
+    }
+
+    const checkInterval = setInterval(() => {
+      if (window.google?.maps?.places) {
+        clearInterval(checkInterval);
+        initAutocomplete();
+      }
+    }, 300);
+
+    return () => clearInterval(checkInterval);
+  }, [initAutocomplete]);
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
@@ -354,6 +475,9 @@ const HostForm = forwardRef<HTMLElement>(function HostForm(_, ref) {
     email: "",
     phone: "",
     address: "",
+    latitude: null,
+    longitude: null,
+    postalCode: "",
     socketType: "",
     socketLocation: "",
     socketLocationOther: "",
@@ -409,6 +533,9 @@ const HostForm = forwardRef<HTMLElement>(function HostForm(_, ref) {
           email: data.email.trim().toLowerCase(),
           phone: data.phone.trim(),
           address: data.address.trim(),
+          latitude: data.latitude,
+          longitude: data.longitude,
+          postal_code: data.postalCode || null,
           socket_type: data.socketType,
           socket_location: data.socketLocation,
           socket_location_notes:
@@ -550,11 +677,21 @@ const HostForm = forwardRef<HTMLElement>(function HostForm(_, ref) {
                     num="04"
                     label="Indirizzo completo"
                     error={errors.address}
-                    hint="Non lo pubblichiamo mai."
+                    hint="Inizia a digitare per usare l'autocomplete. Non lo pubblichiamo mai."
                   >
-                    <TextInput
+                    <AddressAutocomplete
                       value={data.address}
                       onChange={(v) => update("address", v)}
+                      onPlaceSelect={({ address, lat, lng, postalCode }) => {
+                        setData((d) => ({
+                          ...d,
+                          address,
+                          latitude: lat,
+                          longitude: lng,
+                          postalCode,
+                        }));
+                        if (errors.address) setErrors((e) => ({ ...e, address: null }));
+                      }}
                       placeholder="Via, numero civico, Roma"
                       invalid={!!errors.address}
                     />
