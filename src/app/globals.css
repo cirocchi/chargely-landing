@@ -1,20 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/instrumentserif/v4/jizBRFtNs2ka5fCjGq3nOa6BRMQE.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("https://fonts.gstatic.com/s/instrumentserif/v4/jizHRFtNs2ka5fCjGq3nOaZVPUGH.woff2") format("woff2");
-}
-
 :root {
   --bg: #F2EFE6;
   --paper: #FFFFFF;
@@ -38,7 +23,7 @@
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
 
-  --font-display: "Instrument Serif", Georgia, serif;
+  --font-display: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
   --font-sans: var(--font-geist-sans), "Geist", system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
 }
@@ -57,4 +42,19 @@ body {
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }
+}
+
+.address-autocomplete-wrapper gmp-place-autocomplete {
+  --gmpac-font-family: var(--font-display, system-ui);
+}
+
+.address-autocomplete-wrapper input {
+  width: 100%;
+  background: var(--paper);
+  padding: 16px 22px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--ink);
+  border: none;
+  outline: none;
 }

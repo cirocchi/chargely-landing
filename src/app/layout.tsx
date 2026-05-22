@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,6 +10,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -33,14 +40,13 @@ export default function RootLayout({
   const googleMapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
-    <html lang="it" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="it" className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable}`}>
       <body>
         {children}
         {googleMapsKey && (
           <script
-            src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&libraries=places&language=it`}
+            src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&libraries=places&language=it&loading=async`}
             async
-            defer
           />
         )}
       </body>

@@ -117,36 +117,6 @@ function TextInput({
   );
 }
 
-declare global {
-  interface Window {
-    google?: {
-      maps: {
-        places: {
-          Autocomplete: new (
-            input: HTMLInputElement,
-            opts?: Record<string, unknown>
-          ) => GoogleAutocomplete;
-        };
-      };
-    };
-  }
-}
-
-interface GoogleAutocomplete {
-  addListener: (event: string, handler: () => void) => void;
-  getPlace: () => {
-    formatted_address?: string;
-    address_components?: {
-      long_name: string;
-      short_name: string;
-      types: string[];
-    }[];
-    geometry?: {
-      location?: { lat: () => number; lng: () => number };
-    };
-  };
-}
-
 function AddressAutocomplete({
   value,
   onChange,
@@ -165,50 +135,77 @@ function AddressAutocomplete({
   placeholder: string;
   invalid?: boolean;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const autocompleteRef = useRef<GoogleAutocomplete | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initialized = useRef(false);
+  const onPlaceSelectRef = useRef(onPlaceSelect);
+  onPlaceSelectRef.current = onPlaceSelect;
 
   const initAutocomplete = useCallback(() => {
-    if (!inputRef.current || !window.google?.maps?.places || autocompleteRef.current) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const google = (window as any).google as {
+      maps: { importLibrary: (name: string) => Promise<{ PlaceAutocompleteElement: unknown }> };
+    } | undefined;
+    if (!google?.maps || !containerRef.current || initialized.current) return;
 
-    const ac = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ["address"],
-      componentRestrictions: { country: "it" },
-      fields: ["formatted_address", "geometry", "address_components"],
-    });
+    initialized.current = true;
 
-    ac.addListener("place_changed", () => {
-      const place = ac.getPlace();
-      if (!place.geometry?.location) return;
+    google.maps.importLibrary("places").then(({ PlaceAutocompleteElement }: Record<string, unknown>) => {
+      const PlaceAC = PlaceAutocompleteElement as new (opts: Record<string, unknown>) => HTMLElement & {
+        addEventListener: (event: string, handler: (e: { place: { fetchFields: (opts: { fields: string[] }) => Promise<{ place: Record<string, unknown> }> } }) => void) => void;
+      };
 
-      const lat = place.geometry.location.lat();
-      const lng = place.geometry.location.lng();
-      const address = place.formatted_address || "";
-      let postalCode = "";
+      const el = new PlaceAC({
+        types: ["address"],
+        componentRestrictions: { country: "it" },
+        locationBias: { lat: 41.9028, lng: 12.4964, radius: 50000 },
+      });
 
-      if (place.address_components) {
-        for (const comp of place.address_components) {
-          if (comp.types.includes("postal_code")) {
-            postalCode = comp.long_name;
-            break;
+      el.style.cssText = "width:100%;";
+      el.setAttribute("placeholder", placeholder);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      el.addEventListener("gmp-placeselect", async (e: any) => {
+        const { place } = e;
+        const result = await place.fetchFields({
+          fields: ["formattedAddress", "location", "addressComponents"],
+        });
+        const p = result.place;
+
+        const location = p.location as { lat: () => number; lng: () => number } | undefined;
+        const lat = location?.lat() ?? null;
+        const lng = location?.lng() ?? null;
+        const address = (p.formattedAddress as string) || "";
+        let postalCode = "";
+
+        const components = p.addressComponents as { types: string[]; longText: string }[] | undefined;
+        if (components) {
+          for (const comp of components) {
+            if (comp.types.includes("postal_code")) {
+              postalCode = comp.longText;
+              break;
+            }
           }
         }
-      }
 
-      onPlaceSelect({ address, lat, lng, postalCode });
+        onPlaceSelectRef.current({ address, lat, lng, postalCode });
+      });
+
+      containerRef.current?.appendChild(el);
     });
-
-    autocompleteRef.current = ac;
-  }, [onPlaceSelect]);
+  }, [placeholder]);
 
   useEffect(() => {
-    if (window.google?.maps?.places) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const google = (window as any).google;
+    if (google?.maps) {
       initAutocomplete();
       return;
     }
 
     const checkInterval = setInterval(() => {
-      if (window.google?.maps?.places) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const g = (window as any).google;
+      if (g?.maps) {
         clearInterval(checkInterval);
         initAutocomplete();
       }
@@ -218,20 +215,33 @@ function AddressAutocomplete({
   }, [initAutocomplete]);
 
   return (
-    <input
-      ref={inputRef}
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className="w-full bg-paper rounded-full px-[22px] py-4 font-sans text-base text-ink outline-none transition-shadow focus:ring-4"
-      style={{
-        border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
-        ...(invalid
-          ? { "--tw-ring-color": "rgba(184,92,60,0.18)" } as React.CSSProperties
-          : { "--tw-ring-color": "rgba(22,51,31,0.15)" } as React.CSSProperties),
-      }}
-    />
+    <div>
+      <div
+        ref={containerRef}
+        className="address-autocomplete-wrapper w-full"
+        style={{
+          border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
+          borderRadius: 999,
+          overflow: "hidden",
+        }}
+      />
+      {/* Fallback input when Google hasn't loaded yet */}
+      {!initialized.current && (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full bg-paper rounded-full px-[22px] py-4 font-sans text-base text-ink outline-none transition-shadow focus:ring-4"
+          style={{
+            border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
+            ...(invalid
+              ? { "--tw-ring-color": "rgba(184,92,60,0.18)" } as React.CSSProperties
+              : { "--tw-ring-color": "rgba(22,51,31,0.15)" } as React.CSSProperties),
+          }}
+        />
+      )}
+    </div>
   );
 }
 
