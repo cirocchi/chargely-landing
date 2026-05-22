@@ -506,36 +506,35 @@ const HostForm = forwardRef<HTMLElement>(function HostForm(_, ref) {
     setSubmitting(true);
 
     try {
-      const { data: hostData, error: hostError } = await supabase
-        .from("hosts")
-        .insert({
-          full_name: data.fullName.trim(),
-          email: data.email.trim().toLowerCase(),
-          phone: data.phone.trim(),
-          address: data.address.trim(),
-          latitude: data.latitude,
-          longitude: data.longitude,
-          postal_code: data.postalCode || null,
-          socket_type: data.socketType,
-          socket_location: data.socketLocation,
-          socket_location_notes:
+      const { data: hostId, error: hostError } = await supabase.rpc(
+        "register_host",
+        {
+          p_full_name: data.fullName.trim(),
+          p_email: data.email.trim().toLowerCase(),
+          p_phone: data.phone.trim(),
+          p_address: data.address.trim(),
+          p_latitude: data.latitude,
+          p_longitude: data.longitude,
+          p_postal_code: data.postalCode || null,
+          p_socket_type: data.socketType,
+          p_socket_location: data.socketLocation,
+          p_socket_location_notes:
             data.socketLocation === "other"
               ? data.socketLocationOther.trim()
               : null,
-          contract_power: data.contractPower === "unknown" ? null : data.contractPower,
-          contract_power_unknown: data.contractPower === "unknown",
-          availability: data.availability,
-          privacy_consent: data.privacy,
-          marketing_consent: data.marketing,
-        })
-        .select("id")
-        .single();
+          p_contract_power: data.contractPower === "unknown" ? null : data.contractPower,
+          p_contract_power_unknown: data.contractPower === "unknown",
+          p_availability: data.availability,
+          p_privacy_consent: data.privacy,
+          p_marketing_consent: data.marketing,
+        }
+      );
 
       if (hostError) throw hostError;
 
-      if (data.bill && hostData?.id) {
+      if (data.bill && hostId) {
         const ext = data.bill.name.split(".").pop()?.toLowerCase() || "pdf";
-        const filePath = `${hostData.id}/${Date.now()}.${ext}`;
+        const filePath = `${hostId}/${Date.now()}.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("bills")
@@ -548,7 +547,7 @@ const HostForm = forwardRef<HTMLElement>(function HostForm(_, ref) {
 
         const fileType = ext === "pdf" ? "pdf" : "image";
         await supabase.from("bills").insert({
-          host_id: hostData.id,
+          host_id: hostId,
           file_path: filePath,
           file_size_kb: Math.round(data.bill.size / 1024),
           file_type: fileType,
