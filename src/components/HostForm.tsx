@@ -141,7 +141,7 @@ function AddressAutocomplete({
   const initAutocomplete = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const google = (window as any).google;
-    if (!google?.maps || !containerRef.current || initialized.current) return;
+    if (!google?.maps?.importLibrary || !containerRef.current || initialized.current) return;
 
     initialized.current = true;
 
@@ -187,7 +187,7 @@ function AddressAutocomplete({
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const google = (window as any).google;
-    if (google?.maps) {
+    if (google?.maps?.importLibrary) {
       initAutocomplete();
       return;
     }
@@ -195,7 +195,7 @@ function AddressAutocomplete({
     const checkInterval = setInterval(() => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const g = (window as any).google;
-      if (g?.maps) {
+      if (g?.maps?.importLibrary) {
         clearInterval(checkInterval);
         initAutocomplete();
       }
