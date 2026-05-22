@@ -118,8 +118,6 @@ function TextInput({
 }
 
 function AddressAutocomplete({
-  value,
-  onChange,
   onPlaceSelect,
   placeholder,
   invalid,
@@ -140,58 +138,50 @@ function AddressAutocomplete({
   const onPlaceSelectRef = useRef(onPlaceSelect);
   onPlaceSelectRef.current = onPlaceSelect;
 
-  const initAutocomplete = useCallback(() => {
+  const initAutocomplete = useCallback(async () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const google = (window as any).google as {
-      maps: { importLibrary: (name: string) => Promise<{ PlaceAutocompleteElement: unknown }> };
-    } | undefined;
+    const google = (window as any).google;
     if (!google?.maps || !containerRef.current || initialized.current) return;
 
     initialized.current = true;
 
-    google.maps.importLibrary("places").then(({ PlaceAutocompleteElement }: Record<string, unknown>) => {
-      const PlaceAC = PlaceAutocompleteElement as new (opts: Record<string, unknown>) => HTMLElement & {
-        addEventListener: (event: string, handler: (e: { place: { fetchFields: (opts: { fields: string[] }) => Promise<{ place: Record<string, unknown> }> } }) => void) => void;
-      };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { PlaceAutocompleteElement } = await google.maps.importLibrary("places") as any;
 
-      const el = new PlaceAC({
-        types: ["address"],
-        componentRestrictions: { country: "it" },
-        locationBias: { lat: 41.9028, lng: 12.4964, radius: 50000 },
+    const el = new PlaceAutocompleteElement({
+      includedPrimaryTypes: ["address"],
+      includedRegionCodes: ["it"],
+      locationBias: { lat: 41.9028, lng: 12.4964, radius: 50000 },
+    });
+
+    el.style.cssText = "width:100%;";
+    el.setAttribute("placeholder", placeholder);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    el.addEventListener("gmp-select", async (e: any) => {
+      const place = e.placePrediction.toPlace();
+      await place.fetchFields({
+        fields: ["formattedAddress", "location", "addressComponents"],
       });
 
-      el.style.cssText = "width:100%;";
-      el.setAttribute("placeholder", placeholder);
+      const lat = place.location?.lat() ?? null;
+      const lng = place.location?.lng() ?? null;
+      const address = place.formattedAddress || "";
+      let postalCode = "";
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      el.addEventListener("gmp-placeselect", async (e: any) => {
-        const { place } = e;
-        const result = await place.fetchFields({
-          fields: ["formattedAddress", "location", "addressComponents"],
-        });
-        const p = result.place;
-
-        const location = p.location as { lat: () => number; lng: () => number } | undefined;
-        const lat = location?.lat() ?? null;
-        const lng = location?.lng() ?? null;
-        const address = (p.formattedAddress as string) || "";
-        let postalCode = "";
-
-        const components = p.addressComponents as { types: string[]; longText: string }[] | undefined;
-        if (components) {
-          for (const comp of components) {
-            if (comp.types.includes("postal_code")) {
-              postalCode = comp.longText;
-              break;
-            }
+      if (place.addressComponents) {
+        for (const comp of place.addressComponents) {
+          if (comp.types.includes("postal_code")) {
+            postalCode = comp.longText;
+            break;
           }
         }
+      }
 
-        onPlaceSelectRef.current({ address, lat, lng, postalCode });
-      });
-
-      containerRef.current?.appendChild(el);
+      onPlaceSelectRef.current({ address, lat, lng, postalCode });
     });
+
+    containerRef.current?.appendChild(el);
   }, [placeholder]);
 
   useEffect(() => {
@@ -215,33 +205,15 @@ function AddressAutocomplete({
   }, [initAutocomplete]);
 
   return (
-    <div>
-      <div
-        ref={containerRef}
-        className="address-autocomplete-wrapper w-full"
-        style={{
-          border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
-          borderRadius: 999,
-          overflow: "hidden",
-        }}
-      />
-      {/* Fallback input when Google hasn't loaded yet */}
-      {!initialized.current && (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-paper rounded-full px-[22px] py-4 font-sans text-base text-ink outline-none transition-shadow focus:ring-4"
-          style={{
-            border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
-            ...(invalid
-              ? { "--tw-ring-color": "rgba(184,92,60,0.18)" } as React.CSSProperties
-              : { "--tw-ring-color": "rgba(22,51,31,0.15)" } as React.CSSProperties),
-          }}
-        />
-      )}
-    </div>
+    <div
+      ref={containerRef}
+      className="address-autocomplete-wrapper w-full"
+      style={{
+        border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
+        borderRadius: 999,
+        overflow: "hidden",
+      }}
+    />
   );
 }
 
