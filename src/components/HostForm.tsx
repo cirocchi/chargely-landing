@@ -153,8 +153,32 @@ function AddressAutocomplete({
       locationBias: { lat: 41.9028, lng: 12.4964, radius: 50000 },
     });
 
-    el.style.cssText = "width:100%;";
+    el.style.cssText = "width:100%;display:block;background:transparent;";
     el.setAttribute("placeholder", placeholder);
+
+    const injectShadowStyles = () => {
+      const shadow = el.shadowRoot as ShadowRoot | null;
+      if (!shadow) return false;
+      if (shadow.querySelector("style[data-chargely-pill]")) return true;
+      const style = document.createElement("style");
+      style.setAttribute("data-chargely-pill", "");
+      style.textContent = `
+        input {
+          border-radius: 999px !important;
+          background: transparent !important;
+          padding: 16px 22px !important;
+          border: none !important;
+          outline: none !important;
+          font-family: inherit !important;
+          font-size: 16px !important;
+          color: var(--ink, #0D1F14) !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+      `;
+      shadow.appendChild(style);
+      return true;
+    };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     el.addEventListener("gmp-select", async (e: any) => {
@@ -181,6 +205,17 @@ function AddressAutocomplete({
     });
 
     containerRef.current?.appendChild(el);
+
+    if (!injectShadowStyles()) {
+      let attempts = 0;
+      const retry = () => {
+        if (attempts++ >= 20) return;
+        if (!injectShadowStyles()) {
+          requestAnimationFrame(retry);
+        }
+      };
+      requestAnimationFrame(retry);
+    }
   }, [placeholder]);
 
   useEffect(() => {
