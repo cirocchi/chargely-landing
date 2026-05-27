@@ -206,10 +206,10 @@ function AddressAutocomplete({
   return (
     <div
       ref={containerRef}
-      className="address-autocomplete-wrapper w-full"
+      className="address-autocomplete-wrapper"
+      data-invalid={invalid ? "true" : undefined}
       style={{
         border: `1.5px solid ${invalid ? "#B85C3C" : "var(--ink)"}`,
-        borderRadius: 999,
       }}
     />
   );

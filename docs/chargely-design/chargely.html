@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Chargely — La rete di ricarica tra privati a Roma</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg:      #F2EFE6;
+    --paper:   #FFFFFF;
+    --ink:     #0D1F14;
+    --forest:  #16331F;
+    --forest2: #1E4A2D;
+    --lime:    #C6F24D;
+    --stone:   #6B6F62;
+    --rule:    rgba(13,31,20,0.12);
+    --rule-strong: rgba(13,31,20,0.6);
+
+    --display: "Instrument Serif", Georgia, serif;
+    --sans:    "Geist", system-ui, -apple-system, sans-serif;
+    --mono:    "Geist Mono", ui-monospace, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: var(--sans); font-size: 17px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; display: block; }
+  button { font-family: inherit; }
+  input, select, textarea { font-family: inherit; }
+
+  /* utility classes used inline */
+  .mono { font-family: var(--mono); letter-spacing: 0.04em; }
+  .display { font-family: var(--display); }
+  .container { max-width: 1240px; margin: 0 auto; padding: 0 32px; }
+  @media (max-width: 720px) {
+    .container { padding: 0 20px; }
+  }
+
+  /* button base */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    font: 600 15px/1 var(--sans); padding: 16px 22px;
+    border: 1.5px solid var(--ink); border-radius: 999px;
+    cursor: pointer; text-decoration: none; color: var(--ink);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary { background: var(--lime); box-shadow: 3px 3px 0 0 var(--ink); }
+  .btn-primary:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 0 var(--ink); }
+  .btn-primary:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 var(--ink); }
+  .btn-ghost { background: transparent; }
+  .btn-ghost:hover { background: var(--ink); color: var(--bg); }
+  .btn .arrow { font-family: var(--display); font-style: italic; font-size: 18px; }
+
+  /* section header */
+  .eyebrow {
+    font: 500 11px/1 var(--mono); letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--forest); margin: 0 0 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .eyebrow .num { color: var(--ink); opacity: .55; }
+  .eyebrow .line { flex: 0 0 28px; height: 1px; background: var(--forest); opacity: .6; }
+
+  /* selection */
+  ::selection { background: var(--lime); color: var(--ink); }
+
+  /* avoid mobile horiz scroll */
+  body { overflow-x: hidden; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<div id="root"></div>
+
+<script>
+  // Default tweaks — host can rewrite this block on disk.
+  window.__TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+    "heroVariant": "map",
+    "ctaStyle": "lime",
+    "showCounter": true,
+    "counterHosts": 47,
+    "showRoofMap": true,
+    "casoMarker": "icon"
+  }/*EDITMODE-END*/;
+</script>
+
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="ui-watt.jsx"></script>
+<script type="text/babel" src="landing-hero.jsx"></script>
+<script type="text/babel" src="landing-host-types.jsx"></script>
+<script type="text/babel" src="landing-earnings.jsx"></script>
+<script type="text/babel" src="landing-form.jsx"></script>
+<script type="text/babel" src="landing-faq.jsx"></script>
+<script type="text/babel" src="landing-app.jsx"></script>
+
+</body>
+</html>

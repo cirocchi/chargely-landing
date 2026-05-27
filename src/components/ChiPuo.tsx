@@ -7,6 +7,74 @@ const HOST_CASES = [
   { tag: "06", title: "Presa esterna sotto casa", body: "Sul prospetto al piano terra, raggiungibile dall'auto parcheggiata in strada." },
 ];
 
+function CaseIcon({ tag }: { tag: string }) {
+  const common = {
+    width: 30,
+    height: 30,
+    viewBox: "0 0 28 28",
+    fill: "none",
+    stroke: "var(--forest)",
+    strokeWidth: 1.35,
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+  };
+  switch (tag) {
+    case "01":
+      return (
+        <svg {...common}>
+          <path d="M3.5 12 14 5 24.5 12" />
+          <path d="M5.5 12v11h17V12" />
+          <path d="M8.5 16h11M8.5 19h11" />
+        </svg>
+      );
+    case "02":
+      return (
+        <svg {...common}>
+          <path d="M5 12 14 5 23 12v11H5z" />
+          <path d="M12 23v-5h4v5" />
+          <path d="M9 26 14 23 19 26" />
+        </svg>
+      );
+    case "03":
+      return (
+        <svg {...common}>
+          <path d="M6 4h16v20H6z" />
+          <path d="M9.5 8h1.5M13.25 8h1.5M17 8h1.5M9.5 12h1.5M13.25 12h1.5M17 12h1.5M9.5 16h1.5M17 16h1.5" />
+          <path d="M12 24v-4h4v4" />
+        </svg>
+      );
+    case "04":
+      return (
+        <svg {...common}>
+          <path d="M3.5 12 14 5 24.5 12v12H3.5z" />
+          <path d="M7 19h14l-1.6-3.2H8.6z" />
+          <circle cx="10" cy="21" r="1" />
+          <circle cx="18" cy="21" r="1" />
+        </svg>
+      );
+    case "05":
+      return (
+        <svg {...common}>
+          <path d="M4.5 6h19v6h-19z" />
+          <path d="M4.5 14h19v8h-19z" />
+          <path d="M10 9h2M16 9h2M10 17h2M16 17h2" />
+        </svg>
+      );
+    case "06":
+      return (
+        <svg {...common}>
+          <path d="M3 6v16" />
+          <circle cx="15" cy="14" r="7" />
+          <circle cx="12.5" cy="12" r="0.9" fill="var(--forest)" stroke="none" />
+          <circle cx="17.5" cy="12" r="0.9" fill="var(--forest)" stroke="none" />
+          <path d="M12.5 16.5h5" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+}
+
 export default function ChiPuo() {
   return (
     <section id="chi-puo" className="bg-paper py-[clamp(72px,9vw,120px)] relative">
@@ -33,22 +101,21 @@ export default function ChiPuo() {
         </div>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-px bg-rule border border-rule rounded-md overflow-hidden">
-          {HOST_CASES.map((c, i) => (
+          {HOST_CASES.map((c) => (
             <div
               key={c.tag}
               className="bg-paper p-[32px_28px] flex flex-col gap-3.5 min-h-[200px]"
             >
-              <div className="flex justify-between items-start">
-                <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-forest">
+              <div className="flex justify-between items-start gap-3">
+                <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-forest mt-1.5">
                   CASO · {c.tag}
                 </span>
                 <span
-                  className="w-6 h-6 rounded"
-                  style={{
-                    background: i % 3 === 0 ? "var(--lime)" : "transparent",
-                    border: i % 3 === 0 ? "none" : "1px solid var(--rule-strong)",
-                  }}
-                />
+                  aria-hidden="true"
+                  className="shrink-0 flex items-center opacity-[0.85]"
+                >
+                  <CaseIcon tag={c.tag} />
+                </span>
               </div>
               <h3 className="font-display text-[26px] leading-[1.1] tracking-[-0.01em]">
                 {c.title}
