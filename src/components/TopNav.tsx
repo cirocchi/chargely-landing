@@ -36,13 +36,13 @@ export default function TopNav({ onCtaClick }: { onCtaClick: () => void }) {
           >
             FAQ
           </a>
-          <button
-            onClick={onCtaClick}
-            className="inline-flex items-center gap-2.5 font-sans text-[13px] font-semibold px-4 py-2.5 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all cursor-pointer"
+          <a
+            href="#form"
+            className="inline-flex items-center gap-2.5 font-sans text-[13px] font-semibold px-4 py-2.5 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all no-underline"
           >
             Diventa host
             <span className="font-display italic text-lg">→</span>
-          </button>
+          </a>
         </div>
       </div>
     </nav>

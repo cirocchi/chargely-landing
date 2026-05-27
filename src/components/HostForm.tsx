@@ -219,23 +219,35 @@ function AddressAutocomplete({
   }, [placeholder]);
 
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const google = (window as any).google;
-    if (google?.maps?.importLibrary) {
-      initAutocomplete();
-      return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const google = (window as any).google;
+          if (google?.maps?.importLibrary) {
+            initAutocomplete();
+          } else {
+            const checkInterval = setInterval(() => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const g = (window as any).google;
+              if (g?.maps?.importLibrary) {
+                clearInterval(checkInterval);
+                initAutocomplete();
+              }
+            }, 300);
+            // We don't clear interval here because we want it to run until it finds google
+          }
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
 
-    const checkInterval = setInterval(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const g = (window as any).google;
-      if (g?.maps?.importLibrary) {
-        clearInterval(checkInterval);
-        initAutocomplete();
-      }
-    }, 300);
-
-    return () => clearInterval(checkInterval);
+    return () => observer.disconnect();
   }, [initAutocomplete]);
 
   return (

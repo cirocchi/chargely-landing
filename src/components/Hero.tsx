@@ -131,13 +131,13 @@ export default function Hero({ onCtaClick }: { onCtaClick: () => void }) {
             diciamo quanto puoi guadagnare ogni mese.
           </p>
           <div className="flex gap-3 flex-wrap items-center">
-            <button
-              onClick={onCtaClick}
-              className="inline-flex items-center gap-2.5 font-sans text-[15px] font-semibold px-[22px] py-4 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all cursor-pointer"
+            <a
+              href="#form"
+              className="inline-flex items-center gap-2.5 font-sans text-[15px] font-semibold px-[22px] py-4 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all no-underline"
             >
               Calcola il tuo guadagno
               <span className="font-display italic text-lg">→</span>
-            </button>
+            </a>
             <a
               href="#come-funziona"
               className="inline-flex items-center gap-2.5 font-sans text-[15px] font-semibold px-[22px] py-4 bg-transparent text-ink border-[1.5px] border-ink rounded-full hover:bg-ink hover:text-[var(--bg)] transition-all no-underline"

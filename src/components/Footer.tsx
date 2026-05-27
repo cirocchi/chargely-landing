@@ -14,13 +14,13 @@ export default function Footer({ onCtaClick }: { onCtaClick: () => void }) {
             </h3>
           </div>
           <div className="flex flex-col gap-3.5 items-start">
-            <button
-              onClick={onCtaClick}
-              className="inline-flex items-center gap-2.5 font-sans text-[15px] font-semibold px-[22px] py-4 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all cursor-pointer"
+            <a
+              href="#form"
+              className="inline-flex items-center gap-2.5 font-sans text-[15px] font-semibold px-[22px] py-4 bg-lime text-ink border-[1.5px] border-ink rounded-full shadow-[3px_3px_0_0_var(--ink)] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0_0_var(--ink)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[1px_1px_0_0_var(--ink)] transition-all no-underline"
             >
               Diventa host adesso
               <span className="font-display italic text-lg">→</span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -93,13 +93,17 @@ export default function Footer({ onCtaClick }: { onCtaClick: () => void }) {
               Legale
             </div>
             <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-              {["Privacy policy", "Cookie policy", "Termini"].map((t) => (
-                <li key={t}>
+              {[
+                { label: "Privacy policy", href: "/privacy" },
+                { label: "Cookie policy", href: "/cookie" },
+                { label: "Termini", href: "/termini" },
+              ].map((t) => (
+                <li key={t.label}>
                   <a
-                    href="#"
+                    href={t.href}
                     className="text-[rgba(242,239,230,0.85)] font-sans text-[14px] leading-[1.5] no-underline hover:text-lime transition-colors"
                   >
-                    {t}
+                    {t.label}
                   </a>
                 </li>
               ))}

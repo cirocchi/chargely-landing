@@ -47,10 +47,14 @@ function FaqItem({
   idx: number;
 }) {
   return (
-    <div className="border-b border-rule">
-      <button
-        onClick={onToggle}
-        className="w-full text-left bg-transparent border-none py-6 cursor-pointer flex gap-5 items-center justify-between text-ink"
+    <details className="border-b border-rule group" open={open} onToggle={(e) => {
+      // Prevent default to handle state manually if needed, or just let it be
+      if ((e.target as HTMLDetailsElement).open !== open) {
+        onToggle();
+      }
+    }}>
+      <summary
+        className="w-full text-left bg-transparent border-none py-6 cursor-pointer flex gap-5 items-center justify-between text-ink list-none [&::-webkit-details-marker]:hidden"
       >
         <span className="flex gap-[18px] items-baseline flex-1">
           <span className="font-mono text-xs font-medium tracking-[0.16em] text-forest shrink-0">
@@ -61,21 +65,18 @@ function FaqItem({
           </span>
         </span>
         <span
-          className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-display text-[22px] italic transition-all"
+          className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center font-display text-[22px] italic transition-all group-open:bg-lime"
           style={{
-            background: open ? "var(--lime)" : "transparent",
             border: "1.5px solid var(--ink)",
           }}
         >
           {open ? "−" : "+"}
         </span>
-      </button>
-      {open && (
-        <div className="pl-[50px] pr-14 max-md:pl-0 max-md:pr-0 pb-7 font-sans text-base leading-[1.6] text-ink/[0.82] max-w-[760px]">
-          {a}
-        </div>
-      )}
-    </div>
+      </summary>
+      <div className="pl-[50px] pr-14 max-md:pl-0 max-md:pr-0 pb-7 font-sans text-base leading-[1.6] text-ink/[0.82] max-w-[760px]">
+        {a}
+      </div>
+    </details>
   );
 }
 
@@ -125,6 +126,20 @@ export default function Faq() {
           </div>
         </div>
       </div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: FAQ_ITEMS.map((it) => ({
+              "@type": "Question",
+              name: it.q,
+              acceptedAnswer: { "@type": "Answer", text: it.a },
+            })),
+          }),
+        }}
+      />
     </section>
   );
 }

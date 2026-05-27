@@ -25,7 +25,7 @@
 
   --font-display: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
   --font-sans: var(--font-geist-sans), "Geist", system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), "Geist Mono", ui-monospace, monospace;
+  --font-mono: "SF Mono", ui-monospace, monospace;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
